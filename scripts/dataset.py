@@ -8,35 +8,44 @@ class RadarDataset(Dataset):
         """
         Searches recursively for all radar frames in the data folder.
         Expects radar files to end in `_radar.npz`.
+        Preloads all data into memory during initialization.
         """
         self.root_path = Path(root_path)
         self.radar_files = sorted(list(self.root_path.rglob('*_radar.npz')))
         
+        self.preloaded_radars = []
+        self.preloaded_poses = []
+        self.has_poses = False
+        
+        print(f"Preloading {len(self.radar_files)} samples into memory. Note: This may consume a significant amount of RAM.")
+        for radar_path in self.radar_files:
+            pose_path = radar_path.with_name(radar_path.name.replace('_radar.npz', '_pose.npz'))
+            
+            # Load and preprocess radar
+            radar_data = np.load(radar_path)
+            hori = radar_data['hm_hori']
+            vert = radar_data['hm_vert']
+            
+            hori = torch.from_numpy(hori).float().nan_to_num(0.0).unsqueeze(0) # [1, 256, 128]
+            vert = torch.from_numpy(vert).float().nan_to_num(0.0).unsqueeze(0) # [1, 256, 128]
+            radar_tensor = torch.cat((hori, vert), dim=0)
+            self.preloaded_radars.append(radar_tensor)
+            
+            # Load pose if it exists
+            if pose_path.exists():
+                self.has_poses = True
+                pose_data = np.load(pose_path)
+                kp = pose_data['kp']
+                kp_tensor = torch.from_numpy(kp).float()
+                self.preloaded_poses.append(kp_tensor)
+        
     def __len__(self):
-        return len(self.radar_files)
+        return len(self.preloaded_radars)
         
     def __getitem__(self, idx):
-        radar_path = self.radar_files[idx]
-        pose_path = radar_path.with_name(radar_path.name.replace('_radar.npz', '_pose.npz'))
-        
-        radar_data = np.load(radar_path)
-        hori = radar_data['hm_hori']
-        vert = radar_data['hm_vert']
-        
-        # Replace NaNs with 0.0 and convert to tensors with channel dim
-        hori = torch.from_numpy(hori).float().nan_to_num(0.0).unsqueeze(0) # [1, 256, 128]
-        vert = torch.from_numpy(vert).float().nan_to_num(0.0).unsqueeze(0) # [1, 256, 128]
-        
-        # Concatenate into shape [2, 256, 128]
-        radar_tensor = torch.cat((hori, vert), dim=0)
-        
-        if pose_path.exists():
-            pose_data = np.load(pose_path)
-            kp = pose_data['kp']
-            kp_tensor = torch.from_numpy(kp).float()
-            return radar_tensor, kp_tensor
-            
-        return radar_tensor
+        if self.has_poses:
+            return self.preloaded_radars[idx], self.preloaded_poses[idx]
+        return self.preloaded_radars[idx]
 
 def radar_collate_fn(batch):
     """

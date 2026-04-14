@@ -21,6 +21,8 @@ def train(root_path, num_samples, batch_size, shuffle, epochs):
             optimizer.step()
             optimizer.zero_grad()
         print(f'Epoch {epoch}, Loss: {loss.item()}')
+    
+    torch.save(model.state_dict(), 'model.pth')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

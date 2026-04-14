@@ -61,7 +61,9 @@ def radar_collate_fn(batch):
     return radars
 
 def create_dataloader(root_path, batch_size=32, shuffle=True) -> DataLoader:
+    print("Creating dataloader...")
     dataset = RadarDataset(root_path)
+    print("Dataset created with", len(dataset), "samples.")
     return DataLoader(
         dataset, 
         batch_size=batch_size, 

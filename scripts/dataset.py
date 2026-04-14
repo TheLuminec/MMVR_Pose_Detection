@@ -40,7 +40,14 @@ class RadarDataset(Dataset):
                 self.has_poses = True
                 pose_data = np.load(pose_path)
                 kp = pose_data['kp']
-                kp_tensor = torch.from_numpy(kp).float()
+                kp_tensor = torch.from_numpy(kp).float() # [n, 17, 3]
+                
+                # Model predicts (17, 2). Assuming single subject (P1), extract first subject's (x,y)
+                if kp_tensor.size(0) > 0:
+                    kp_tensor = kp_tensor[0, :, :2]
+                else:
+                    kp_tensor = torch.zeros((17, 2))
+                    
                 self.preloaded_poses.append(kp_tensor)
         
     def __len__(self):
@@ -51,28 +58,6 @@ class RadarDataset(Dataset):
             return self.preloaded_radars[idx], self.preloaded_poses[idx]
         return self.preloaded_radars[idx]
 
-def radar_collate_fn(batch):
-    """
-    Custom collate_fn to handle variable 'n' objects in the pose keypoints.
-    """
-    radars = []
-    poses = []
-    
-    for item in batch:
-        if isinstance(item, tuple):
-            radars.append(item[0])
-            poses.append(item[1])
-        else:
-            radars.append(item)
-            
-    radars = torch.stack(radars, dim=0)
-    
-    if poses:
-        # Since pose objects vary per frame, we return them as a list of tensors
-        return radars, poses
-        
-    return radars
-
 def create_dataloader(root_path, batch_size=32, shuffle=True, num_samples=None) -> DataLoader:
     print("Creating dataloader...")
     dataset = RadarDataset(root_path, num_samples=num_samples)
@@ -80,6 +65,5 @@ def create_dataloader(root_path, batch_size=32, shuffle=True, num_samples=None) 
     return DataLoader(
         dataset, 
         batch_size=batch_size, 
-        shuffle=shuffle, 
-        collate_fn=radar_collate_fn
+        shuffle=shuffle
     )

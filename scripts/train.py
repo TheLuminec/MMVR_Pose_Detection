@@ -25,7 +25,7 @@ def train(root_path, num_samples, batch_size, shuffle, epochs):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_path', type=str, default='P1/')
-    parser.add_argument('--num_samples', type=int, default=100)
+    parser.add_argument('--num_samples', type=int, default=1000)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--shuffle', type=bool, default=True)
     parser.add_argument('--epochs', type=int, default=10)

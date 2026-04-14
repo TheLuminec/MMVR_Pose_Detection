@@ -23,9 +23,10 @@ class Model(nn.Module):
         x = F.relu(x)
         x = x.view(x.size(0), -1)  # Flatten for the dense layer
         x = self.dense(x)
-        x = F.softmax(x, dim=1)
+        x = F.sigmoid(x)
 
         x = x.view(x.size(0), 17, 2)  # Reshape to (batch_size, 17, 2)
-
+        x[:, :, 0] = x[:, :, 0] * 128
+        x[:, :, 1] = x[:, :, 1] * 256
         return x
         

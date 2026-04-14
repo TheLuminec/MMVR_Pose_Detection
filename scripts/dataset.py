@@ -2,9 +2,10 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from pathlib import Path
+import random
 
 class RadarDataset(Dataset):
-    def __init__(self, root_path):
+    def __init__(self, root_path, num_samples=None):
         """
         Searches recursively for all radar frames in the data folder.
         Expects radar files to end in `_radar.npz`.
@@ -12,6 +13,9 @@ class RadarDataset(Dataset):
         """
         self.root_path = Path(root_path)
         self.radar_files = sorted(list(self.root_path.rglob('*_radar.npz')))
+        
+        if num_samples is not None and num_samples < len(self.radar_files):
+            self.radar_files = random.sample(self.radar_files, num_samples)
         
         self.preloaded_radars = []
         self.preloaded_poses = []
@@ -69,9 +73,9 @@ def radar_collate_fn(batch):
         
     return radars
 
-def create_dataloader(root_path, batch_size=32, shuffle=True) -> DataLoader:
+def create_dataloader(root_path, batch_size=32, shuffle=True, num_samples=None) -> DataLoader:
     print("Creating dataloader...")
-    dataset = RadarDataset(root_path)
+    dataset = RadarDataset(root_path, num_samples=num_samples)
     print("Dataset created with", len(dataset), "samples.")
     return DataLoader(
         dataset, 

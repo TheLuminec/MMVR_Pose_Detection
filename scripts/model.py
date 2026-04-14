@@ -26,7 +26,12 @@ class Model(nn.Module):
         x = F.sigmoid(x)
 
         x = x.view(x.size(0), 17, 2)  # Reshape to (batch_size, 17, 2)
-        x[:, :, 0] = x[:, :, 0] * 128
-        x[:, :, 1] = x[:, :, 1] * 256
+        
+        # Does not work as its inplace operation
+        # x[:, :, 0] = x[:, :, 0] * 128
+        # x[:, :, 1] = x[:, :, 1] * 256
+
+        x = x * torch.tensor([128, 256], device=x.device)
+
         return x
         

@@ -28,10 +28,7 @@ def percentage_correct_keypoints(model, dataloader, threshold=10):
             total_keypoints += pred_pose.shape[0] * pred_pose.shape[1]
 
     mae /= total_keypoints
-    precision = total_correct / (total_correct + (total_keypoints - total_correct)) if (total_correct + (total_keypoints - total_correct)) > 0 else 0
-    recall = total_correct / total_keypoints if total_keypoints > 0 else 0
-    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-    print(f'MAE: {mae:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1 Score: {f1_score:.4f}')
+    print(f'MAE: {mae:.4f}')
 
     return total_correct / total_keypoints
 

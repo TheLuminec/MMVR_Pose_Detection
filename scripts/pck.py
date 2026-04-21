@@ -17,7 +17,6 @@ def percentage_correct_keypoints(model, dataloader, threshold=10):
     model.eval()
     total_correct = 0
     total_keypoints = 0
-    count = dataloader.dataset.__len__()
 
     mae = 0.0
 

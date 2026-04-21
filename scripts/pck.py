@@ -46,6 +46,6 @@ if __name__ == "__main__":
     model = Model()
     model.load_state_dict(torch.load(args.model_path))
     model.eval()
-    dataloader = create_dataloader(root_path=args.data_path, num_samples=args.num_samples, batch_size=args.batch_size, shuffle=False)
+    dataloader, _ = create_dataloader(root_path=args.data_path, num_samples=args.num_samples, batch_size=args.batch_size, shuffle=False)
     pck = percentage_correct_keypoints(model, dataloader, threshold=args.threshold)
     print(f'PCK @ {args.threshold} pixels: {pck:.4f}')

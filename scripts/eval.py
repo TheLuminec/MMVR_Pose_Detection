@@ -77,3 +77,4 @@ if __name__ == "__main__":
         else:
             graph_path = path.with_name(path.name.replace('_radar.npz', '_eval.png'))
         visual_eval(model, data, path, threshold=args.threshold, save_graph=args.save_graph, graph_path=graph_path)
+        plt.clf()

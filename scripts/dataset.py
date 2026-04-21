@@ -66,4 +66,4 @@ def create_dataloader(root_path, batch_size=32, shuffle=True, num_samples=None) 
         dataset, 
         batch_size=batch_size, 
         shuffle=shuffle
-    )
+    ), dataset

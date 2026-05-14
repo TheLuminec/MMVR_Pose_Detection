@@ -43,7 +43,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # model = Model()
     # Use this line when running ResNet-18
-    model = ResNet18PoseBaseline
+    model = ResNet18PoseBaseline()
     model.load_state_dict(torch.load(args.model_path))
     model.eval()
     dataloader, _ = create_dataloader(root_path=args.data_path, num_samples=args.num_samples, batch_size=args.batch_size, shuffle=False)
